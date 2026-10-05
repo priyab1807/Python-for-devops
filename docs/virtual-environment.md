@@ -14,8 +14,8 @@ This is especially useful in DevOps projects where different automation scripts 
 First, create a new directory for your project:
 
 ```bash
-mkdir python-project
-cd python-project
+mkdir practice-python
+cd practice-python
 ```
 
 Create a virtual environment using Python's built-in `venv` module:
@@ -55,6 +55,8 @@ Once activated, your terminal will usually show the environment name:
 ```text
 (.venv) user@machine:~/python-project$
 ```
+<img width="420" height="32" alt="image" src="https://github.com/user-attachments/assets/b8142556-a8c3-4473-9594-7a801235871b" />
+
 
 Now check the Python executable again:
 
@@ -183,3 +185,161 @@ Global Python
 Installing a package in `.venv18` does not make it available in `.venv`.
 
 This isolation helps prevent **dependency conflicts** between different Python projects and makes DevOps automation projects easier to manage and reproduce.
+
+## Python Virtual Environment – Git Workflow
+
+### 1. Create the Virtual Environment
+
+Create a virtual environment inside the project:
+
+```bash
+python -m venv .venv
+```
+
+Activate it:
+
+```bash
+source .venv/bin/activate
+```
+
+---
+
+### 2. Install Required Packages
+
+Install the packages required for the project:
+
+```bash
+pip install <package-name>
+```
+
+For example:
+
+```bash
+pip install requests
+pip install flask
+```
+<img width="492" height="18" alt="image" src="https://github.com/user-attachments/assets/3a9df34a-ddae-4645-b966-c809445d4c1f" />
+
+
+---
+
+### 3. Store the Installed Packages
+
+Once all required packages are installed, use:
+
+```bash
+pip freeze > requirements.txt
+```
+
+This creates a `requirements.txt` file containing the installed packages along with their **exact versions**.
+
+Example:
+
+```text
+Flask==3.1.2
+requests==2.32.5
+```
+
+The `requirements.txt` file should be committed to Git because it allows us to recreate the environment later.
+
+---
+
+<img width="479" height="236" alt="image" src="https://github.com/user-attachments/assets/f425c1ee-b752-4a9b-9db8-b89de0949b9e" />
+
+
+### 4. Don't Commit the Virtual Environment
+
+The `.venv` directory itself should **not** be committed to Git.
+
+Add it to `.gitignore`:
+
+```text
+.venv/
+```
+
+So Git contains:
+
+```text
+project/
+├── .gitignore
+├── requirements.txt
+└── application.py
+```
+
+but not:
+
+```text
+.venv/
+```
+
+---
+
+### 5. Delete the Virtual Environment
+
+When the environment is no longer required:
+
+```bash
+deactivate
+```
+
+Then simply delete the virtual environment directory:
+
+```bash
+rm -rf .venv
+```
+
+There is no separate Python command required to uninstall a virtual environment. It is just a directory, so deleting the directory removes it.
+
+---
+
+### 6. Recreate the Environment Later
+
+If we need the environment again, create a new one:
+
+```bash
+python -m venv .venv
+```
+
+Activate it:
+
+```bash
+source .venv/bin/activate
+```
+
+Then install all the previously required packages from `requirements.txt`:
+
+```bash
+pip install -r requirements.txt
+```
+
+This recreates the environment with the package versions recorded in `requirements.txt`.
+
+<img width="501" height="82" alt="image" src="https://github.com/user-attachments/assets/4995b907-b2c0-4a5f-83e8-2b94b68c017f" />
+
+<img width="358" height="160" alt="image" src="https://github.com/user-attachments/assets/e4a646c7-66a5-4158-9b44-0410b6d1f4ab" />
+
+
+### Overall Flow
+
+```text
+Create .venv
+     ↓
+Activate .venv
+     ↓
+Install packages
+     ↓
+pip freeze > requirements.txt
+     ↓
+Commit requirements.txt to Git
+     ↓
+Deactivate + rm -rf .venv
+     ↓
+Later: create .venv again
+     ↓
+Activate .venv
+     ↓
+pip install -r requirements.txt
+```
+
+**Important idea:** We don't store the virtual environment in Git. We store the **dependency list (`requirements.txt`)**, which allows anyone to recreate the environment when needed.
+
